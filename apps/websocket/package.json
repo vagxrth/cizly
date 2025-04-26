@@ -10,7 +10,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "ws": "^8.18.1"
   },
   "keywords": [],
   "author": "",
@@ -18,13 +19,20 @@
   "description": "",
   "turbo": {
     "build": {
-      "outputs": ["dist/**"],
-      "dependsOn": ["^build"]
+      "outputs": [
+        "dist/**"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "lint": {}
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1"
   }
 }
