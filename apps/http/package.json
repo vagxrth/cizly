@@ -1,17 +1,19 @@
 {
   "name": "http",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc -b && node dist/index.js",
     "build": "tsc -b",
-    "dev": "tsc -b && node dist/index.js",
+    "dev": "pnpm build && node dist/index.js",
     "lint": "eslint ."
   },
   "dependencies": {
-    "@repo/typescript-config": "workspace:*",
-    "express": "^5.1.0"
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +35,9 @@
     "lint": {}
   },
   "devDependencies": {
-    "@types/express": "^5.0.1"
+    "@repo/schema": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9"
   }
 }
