@@ -1,8 +1,12 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import middleware from "./middleware";
+import middleware from "./middleware.js";
 import { createRoomSchema, signInSchema, createUserSchema } from "@repo/schema/types";
+import dotenv from "dotenv";
+
 const app = express();
+
+dotenv.config();
 
 app.post("/signup", (req, res) => {
   const data = createUserSchema.parse(req.body);

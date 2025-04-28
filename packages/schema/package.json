@@ -1,12 +1,18 @@
 {
   "name": "@repo/schema",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "exports": {
-    "./types": "./src/types.ts"
+    "./types": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*"
