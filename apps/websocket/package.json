@@ -10,7 +10,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@repo/typescript-config": "workspace:*",
     "ws": "^8.18.1"
   },
   "keywords": [],
@@ -33,6 +32,7 @@
     "lint": {}
   },
   "devDependencies": {
-    "@types/ws": "^8.18.1"
+    "@types/ws": "^8.18.1",
+    "@repo/typescript-config": "workspace:*"
   }
 }

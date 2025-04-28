@@ -10,7 +10,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@repo/typescript-config": "workspace:*",
     "express": "^5.1.0"
   },
   "keywords": [],
@@ -33,6 +32,7 @@
     "lint": {}
   },
   "devDependencies": {
-    "@types/express": "^5.0.1"
+    "@types/express": "^5.0.1",
+    "@repo/typescript-config": "workspace:*"
   }
 }
