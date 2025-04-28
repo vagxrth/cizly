@@ -19,21 +19,6 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "turbo": {
-    "build": {
-      "outputs": [
-        "dist/**"
-      ],
-      "dependsOn": [
-        "^build"
-      ]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {}
-  },
   "devDependencies": {
     "@repo/schema": "workspace:*",
     "@repo/typescript-config": "workspace:*",
