@@ -10,7 +10,8 @@ wss.on("connection", (ws, request) => {
     return;
   }
 
-  const queryParams = new URLSearchParams(url.split("?")[1]);
+  const queryString = url.includes("?") ? url.split("?")[1] : "";
+  const queryParams = new URLSearchParams(queryString);
   const token = queryParams.get("token");
   if (!token) {
     ws.close();
