@@ -10,10 +10,6 @@ dotenv.config();
 
 app.post("/signup", (req, res) => {
   const data = createUserSchema.parse(req.body);
-  if (!data) {
-    res.status(400).json({ error: "Invalid request body" });
-    return;
-  }
   res.json({
     userId: 1,
   })
