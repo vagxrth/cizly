@@ -10,7 +10,8 @@ declare global {
 }
 
 const middleware = (req: Request, res: Response, next: NextFunction): void => {
-  const token = req.header('Authorization') ?? "";
+  const authHeader = req.header('Authorization') ?? "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
   if (!token) {
     res.status(401).json({ message: "Unauthorized" });
     return;
