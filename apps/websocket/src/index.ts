@@ -1,6 +1,23 @@
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
+
 const wss = new WebSocketServer({ port: 8080 });
+
+interface User {
+  userId: string;
+  rooms: string[];
+  ws: WebSocket;
+}
+
+const users: User[] = [];
+
+const checkUser = (token: string): string | null => {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+  if (!decoded.userId) {
+    return null;
+  }
+  return decoded.userId;
+}
 
 wss.on("connection", (ws, request) => {
 
@@ -18,14 +35,29 @@ wss.on("connection", (ws, request) => {
     return;
   }
   
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-
-  if (!decoded.userId) {
+  const userAuthenticated = checkUser(token);
+  if (!userAuthenticated) {
     ws.close();
     return;
   }
 
-  ws.on("message", (message) => {
-    ws.send(message);
+  users.push({
+    userId: userAuthenticated,
+    rooms: [],
+    ws: ws,
   });
+
+  ws.on("message", (message) => {
+    const data = JSON.parse(message.toString());
+    if (data.type === "join-room") {
+      users.find((user) => user.userId === userAuthenticated)?.rooms.push(data.roomId);
+    }
+    if (data.type === "leave-room") {
+      const user = users.find((user) => user.userId === userAuthenticated);
+      if (user) {
+        user.rooms = user.rooms.filter((room) => room !== data.roomId);
+      }
+    }
+  });
+  
 });
