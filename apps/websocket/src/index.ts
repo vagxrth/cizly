@@ -53,9 +53,13 @@ wss.on("connection", (ws, request) => {
   });
 
   ws.on("message", async (message) => {
-
-    const data = JSON.parse(message.toString());
-
+    let data;
+    try {
+      data = JSON.parse(message.toString());
+    } catch (error) {
+      console.error("Failed to parse message:", error);
+      return; // Skip processing this message
+    }
     if (data.type === "join-room") {
       users.find((user) => user.userId === userAuthenticated)?.rooms.push(data.roomId);
     }
