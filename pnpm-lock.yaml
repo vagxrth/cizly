@@ -30,6 +30,9 @@ importers:
         specifier: ^9.0.2
         version: 9.0.2
     devDependencies:
+      '@repo/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@repo/schema':
         specifier: workspace:*
         version: link:../../packages/schema

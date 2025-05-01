@@ -22,6 +22,7 @@
   "devDependencies": {
     "@repo/schema": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@repo/db": "workspace:*",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9"
   }
