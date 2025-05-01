@@ -80,14 +80,25 @@ wss.on("connection", (ws, request) => {
       const roomId = data.roomId;
       const message = data.message;
 
-      await prismaClient.message.create({
-        data: {
-          roomId: roomId,
-          message: message,
-          userId: userAuthenticated,
-        },
-      });
+      if (!roomId || typeof roomId !== 'string' || !message || typeof message !== 'string') {
+        ws.send(JSON.stringify({ type: "error", message: "Invalid roomId or message" }));
+        return;
+      }
 
+      try {
+        await prismaClient.message.create({
+          data: {
+            roomId: roomId,
+            message: message,
+            userId: userAuthenticated,
+          },
+        });
+      } catch (error) {
+        console.error("Failed to save message:", error);
+        ws.send(JSON.stringify({ type: "error", message: "Failed to save message" }));
+        return;
+      }
+    }
       const user = users.find((user) => user.userId === userAuthenticated);
       if (user) {
         users.forEach((user) => {
