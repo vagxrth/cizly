@@ -54,6 +54,22 @@ app.post("/create-room", middleware, async (req, res) => {
   })
 });
 
+app.get("/rooms/:roomId", middleware, async (req, res) => {
+  const roomId = req.params.roomId;
+  const messages = await prismaClient.message.findMany({
+    where: {
+      roomId: roomId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 50,
+  });
+  res.json({
+    messages: messages,
+  })
+})
+
 app.listen(3001, () => {
   console.log("Server is running on port 3001");
 });
