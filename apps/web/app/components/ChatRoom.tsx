@@ -3,8 +3,13 @@ import axios from "axios";
 import RoomClient from "./RoomClient";
 
 const getMessages = async (roomId: string) => {
-  const res = await axios.get(`http://localhost:3001/chats/${roomId}`);
-  return res.data.messages;
+  try {
+    const res = await axios.get(`http://localhost:3001/chats/${roomId}`);
+    return res.data.messages;
+  } catch (error) {
+    console.error("Failed to fetch messages:", error);
+    return [];
+  }
 }
 
 const ChatRoom = async (roomId: string) => {
