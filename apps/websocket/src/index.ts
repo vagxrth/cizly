@@ -1,5 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { prismaClient } from "@repo/db/client";
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -51,7 +52,7 @@ wss.on("connection", (ws, request) => {
     ws: ws,
   });
 
-  ws.on("message", (message) => {
+  ws.on("message", async (message) => {
 
     const data = JSON.parse(message.toString());
 
@@ -67,13 +68,24 @@ wss.on("connection", (ws, request) => {
     }
 
     if (data.type === "send-message") {
+      const roomId = data.roomId;
+      const message = data.message;
+
+      await prismaClient.message.create({
+        data: {
+          roomId: roomId,
+          message: message,
+          userId: userAuthenticated,
+        },
+      });
+
       const user = users.find((user) => user.userId === userAuthenticated);
       if (user) {
         users.forEach((user) => {
-          if (user.rooms.includes(data.roomId)) {
+          if (user.rooms.includes(roomId)) {
             user.ws.send(JSON.stringify({
               type: "message",
-              message: data.message,
+              message: message,
             }));
           }
         });
