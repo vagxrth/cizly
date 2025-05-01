@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc -b && node dist/index.js",
     "build": "tsc -b",
-    "dev": "pnpm build && node dist/index.js",
+    "dev": "tsx watch src/index.ts",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "@repo/typescript-config": "workspace:*",
     "@repo/db": "workspace:*",
     "@types/express": "^5.0.1",
-    "@types/jsonwebtoken": "^9.0.9"
+    "@types/jsonwebtoken": "^9.0.9",
+    "tsx": "^4.7.1"
   }
 }
