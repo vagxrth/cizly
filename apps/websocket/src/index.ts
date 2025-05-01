@@ -48,16 +48,32 @@ wss.on("connection", (ws, request) => {
   });
 
   ws.on("message", (message) => {
+
     const data = JSON.parse(message.toString());
+
     if (data.type === "join-room") {
       users.find((user) => user.userId === userAuthenticated)?.rooms.push(data.roomId);
     }
+
     if (data.type === "leave-room") {
       const user = users.find((user) => user.userId === userAuthenticated);
       if (user) {
         user.rooms = user.rooms.filter((room) => room !== data.roomId);
       }
     }
+
+    if (data.type === "send-message") {
+      const user = users.find((user) => user.userId === userAuthenticated);
+      if (user) {
+        users.forEach((user) => {
+          if (user.rooms.includes(data.roomId)) {
+            user.ws.send(JSON.stringify({
+              type: "message",
+              message: data.message,
+            }));
+          }
+        });
+      }
+    }
   });
-  
 });
