@@ -104,23 +104,24 @@ wss.on("connection", (ws, request) => {
             userId: userAuthenticated,
           },
         });
+
+        // Broadcast to all users in the room
+        users.forEach((user) => {
+          if (user.rooms.includes(roomId)) {
+            user.ws.send(JSON.stringify({
+              type: "message",
+              roomId: roomId,
+              userId: userAuthenticated,
+              message: message,
+              timestamp: new Date().toISOString(),
+            }));
+          }
+        });
       } catch (error) {
-        console.error("Failed to save message:", error);
-        ws.send(JSON.stringify({ type: "error", message: "Failed to save message" }));
+        console.error("Failed to broadcast message:", error);
+        ws.send(JSON.stringify({ type: "error", message: "Failed to broadcast message" }));
         return;
       }
-    }
-      users.forEach((user) => {
-        if (user.rooms.includes(roomId)) {
-          user.ws.send(JSON.stringify({
-            type: "message",
-            roomId: roomId,
-            userId: userAuthenticated,
-            message: message,
-            timestamp: new Date().toISOString(),
-          }));
-        }
-      });
     }
   });
 });
