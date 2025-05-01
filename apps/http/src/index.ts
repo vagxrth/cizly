@@ -54,7 +54,7 @@ app.post("/create-room", middleware, async (req, res) => {
   })
 });
 
-app.get("/rooms/:roomId", middleware, async (req, res) => {
+app.get("/chats/:roomId", middleware, async (req, res) => {
   const roomId = req.params.roomId;
   const messages = await prismaClient.message.findMany({
     where: {
