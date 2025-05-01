@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const useSocket = () => {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
