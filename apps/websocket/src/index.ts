@@ -12,11 +12,15 @@ interface User {
 const users: User[] = [];
 
 const checkUser = (token: string): string | null => {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-  if (!decoded.userId) {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    if (!decoded.userId) {
+      return null;
+    }
+    return decoded.userId;
+  } catch (error) {
     return null;
   }
-  return decoded.userId;
 }
 
 wss.on("connection", (ws, request) => {
@@ -34,7 +38,7 @@ wss.on("connection", (ws, request) => {
     ws.close();
     return;
   }
-  
+
   const userAuthenticated = checkUser(token);
   if (!userAuthenticated) {
     ws.close();
