@@ -10,6 +10,16 @@ const useSocket = () => {
             setLoading(false);
             setSocket(ws);
         }
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            setLoading(false);
+        }
+        
+        return () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+        };
     }, []);
 
     return {
