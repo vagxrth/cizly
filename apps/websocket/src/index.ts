@@ -99,17 +99,17 @@ wss.on("connection", (ws, request) => {
         return;
       }
     }
-      const user = users.find((user) => user.userId === userAuthenticated);
-      if (user) {
-        users.forEach((user) => {
-          if (user.rooms.includes(roomId)) {
-            user.ws.send(JSON.stringify({
-              type: "message",
-              message: message,
-            }));
-          }
-        });
-      }
+      users.forEach((user) => {
+        if (user.rooms.includes(roomId)) {
+          user.ws.send(JSON.stringify({
+            type: "message",
+            roomId: roomId,
+            userId: userAuthenticated,
+            message: message,
+            timestamp: new Date().toISOString(),
+          }));
+        }
+      });
     }
   });
 });
