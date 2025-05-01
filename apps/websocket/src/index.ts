@@ -118,8 +118,8 @@ wss.on("connection", (ws, request) => {
           }
         });
       } catch (error) {
-        console.error("Failed to save message:", error);
-        ws.send(JSON.stringify({ type: "error", message: "Failed to save message" }));
+        console.error("Failed to broadcast message:", error);
+        ws.send(JSON.stringify({ type: "error", message: "Failed to broadcast message" }));
         return;
       }
     }
