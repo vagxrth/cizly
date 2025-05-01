@@ -66,7 +66,13 @@ wss.on("connection", (ws, request) => {
       return; // Skip processing this message
     }
     if (data.type === "join-room") {
+      if (!data.roomId || typeof data.roomId !== 'string') {
+        ws.send(JSON.stringify({ type: "error", message: "Invalid roomId" }));
+        return;
+      }
+      // Optionally: Check if room exists and user has permission
       users.find((user) => user.userId === userAuthenticated)?.rooms.push(data.roomId);
+      ws.send(JSON.stringify({ type: "room-joined", roomId: data.roomId }));
     }
 
     if (data.type === "leave-room") {
