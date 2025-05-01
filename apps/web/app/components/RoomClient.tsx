@@ -19,7 +19,7 @@ const RoomClient = ({ roomId }: { roomId: string }) => {
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 if (data.type === "message") {
-                    setChats([...chats, data.message]);
+                    setChats(prev => [...prev, data.message]);
                 }
             }
         }
