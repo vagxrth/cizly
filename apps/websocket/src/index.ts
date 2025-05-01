@@ -46,12 +46,17 @@ wss.on("connection", (ws, request) => {
     return;
   }
 
-  users.push({
+  const current = {
     userId: userAuthenticated,
     rooms: [],
     ws: ws,
-  });
+  };
+  users.push(current);
 
+  ws.on("close", () => {
+    const idx = users.indexOf(current);
+    if (idx !== -1) users.splice(idx, 1);
+  });
   ws.on("message", async (message) => {
     let data;
     try {
