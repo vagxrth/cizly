@@ -2,7 +2,7 @@ import axios from "axios";
 
 const getRoom = async (slug: string) => {
   const res = await axios.get(`http://localhost:3001/rooms/${slug}`);
-  return res.data.id;
+  return res.data.room.id;
 }
 
 const Room = async ({ params }: { params: { slug: string } }) => {
