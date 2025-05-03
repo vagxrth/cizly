@@ -1,17 +1,20 @@
 {
   "name": "websocket",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc -b && node dist/index.js",
-    "build": "tsc -b",
-    "dev": "tsc -b && node dist/index.js",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "tsc && node dist/index.js",
     "lint": "eslint ."
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
-    "ws": "^8.18.1"
+    "ws": "^8.18.1",
+    "dotenv": "^16.4.5"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +24,7 @@
     "@repo/typescript-config": "workspace:*",
     "@repo/db": "workspace:*",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/ws": "^8.18.1"
+    "@types/ws": "^8.18.1",
+    "@types/dotenv": "^8.2.0"
   }
 }

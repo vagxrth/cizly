@@ -2,6 +2,11 @@
     "extends": "@repo/typescript-config/base.json",
     "compilerOptions": {
         "rootDir": "./src",
-        "outDir": "./dist"
-    }
+        "outDir": "./dist",
+        "module": "Node16",
+        "moduleResolution": "node16",
+        "target": "ESNext"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
 }
