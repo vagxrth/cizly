@@ -45,7 +45,7 @@ wss.on("connection", (ws, request) => {
                 }
             });
         } catch (error) {
-            console.error("Failed to parse message:", error);
+            console.error("An error occurred while broadcasting the message. This may include parsing or sending issues:", error);
             return;
         }
     });
