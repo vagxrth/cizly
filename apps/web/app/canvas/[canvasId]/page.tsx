@@ -180,7 +180,12 @@ const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
             };
         }
         
-        await addShape(newShape);
+        try {
+          await addShape(newShape);
+        } catch (error) {
+          // Consider showing a user-friendly error notification
+          console.error('Failed to add shape:', error);
+        }
         isDrawingRef.current = false;
     };
 
