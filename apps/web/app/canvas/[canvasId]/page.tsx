@@ -28,10 +28,14 @@ const getExistingShapes = async (canvasId: string): Promise<Shape[]> => {
     }
 }
 
-const CanvasPage = ({params}: {params: Promise<{canvasId: string}>}) => {
-    const resolvedParams = use(params);
-    const canvasId = resolvedParams.canvasId;
-    
+// Before (lines 31–34):
+// const CanvasPage = ({params}: {params: Promise<{canvasId: string}>}) => {
+//     const resolvedParams = use(params);
+//     const canvasId = resolvedParams.canvasId;
+
+const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
+    const { canvasId } = params;
+    // …
     // Group all hooks at the top level
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [shapes, setShapes] = useState<Shape[]>([]);
