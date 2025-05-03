@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { useEffect, useRef, useState, use } from "react";
 
 type ShapeType = 'rect' | 'circle';
 
@@ -16,10 +17,26 @@ type Shape = {
     radius: number;
 }
 
-const CanvasPage = () => {
+const getExistingShapes = async (canvasId: string): Promise<Shape[]> => {
+    try {
+        const response = await axios.get(`http://localhost:3001/canvas/${canvasId}`);
+        const messages = response.data.messages;
+        return messages.map((x: {content: string}) => JSON.parse(x.content));
+    } catch (error) {
+        console.error('Failed to fetch existing shapes:', error);
+        return [];
+    }
+}
+
+const CanvasPage = ({params}: {params: Promise<{canvasId: string}>}) => {
+    const resolvedParams = use(params);
+    const canvasId = resolvedParams.canvasId;
+    
+    // Group all hooks at the top level
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [shapes, setShapes] = useState<Shape[]>([]);
     const [selectedShape, setSelectedShape] = useState<ShapeType>('rect');
+    const [socket, setSocket] = useState<WebSocket | null>(null);
     const isDrawingRef = useRef(false);
     const startPosRef = useRef({ x: 0, y: 0 });
 
@@ -63,17 +80,118 @@ const CanvasPage = () => {
         }
     }
 
-    // Effect to handle canvas initialization and resize
+    // Add WebSocket and initial data loading effect
+    useEffect(() => {
+        // Load existing shapes
+        getExistingShapes(canvasId).then(existingShapes => {
+            setShapes(existingShapes);
+        });
+
+        // Setup WebSocket connection
+        const ws = new WebSocket(`ws://localhost:8080/canvas/${canvasId}`);
+        
+        ws.onopen = () => {
+            console.log('WebSocket Connected');
+            setSocket(ws);
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                const newShape = JSON.parse(event.data);
+                setShapes(prevShapes => [...prevShapes, newShape]);
+            } catch (error) {
+                console.error('Failed to parse WebSocket message:', error);
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket disconnected');
+            setSocket(null);
+        };
+
+        return () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+        };
+    }, [canvasId]);
+
+    // Modify the shape addition logic to include backend persistence
+    const addShape = async (newShape: Shape) => {
+        try {
+            // Save to database via HTTP server
+            await axios.post(`http://localhost:3001/canvas/${canvasId}`, {
+                message: JSON.stringify(newShape)
+            });
+
+            // Update local state
+            setShapes(prevShapes => [...prevShapes, newShape]);
+
+            // Broadcast to other clients via WebSocket server
+            if (socket?.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify(newShape));
+            }
+        } catch (error) {
+            console.error('Failed to save shape:', error);
+        }
+    };
+
+    // Modify the mouse event handlers to use the new addShape function
+    const handleMouseUp = async (e: MouseEvent) => {
+        if (!isDrawingRef.current) return;
+
+        const rect = canvasRef.current!.getBoundingClientRect();
+        const currentPos = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+
+        let newShape: Shape;
+        if (selectedShape === 'rect') {
+            const x = Math.min(startPosRef.current.x, currentPos.x);
+            const y = Math.min(startPosRef.current.y, currentPos.y);
+            const width = Math.abs(currentPos.x - startPosRef.current.x);
+            const height = Math.abs(currentPos.y - startPosRef.current.y);
+            newShape = {
+                type: 'rect',
+                x,
+                y,
+                width,
+                height,
+            };
+        } else {
+            const radius = Math.sqrt(
+                Math.pow(currentPos.x - startPosRef.current.x, 2) + 
+                Math.pow(currentPos.y - startPosRef.current.y, 2)
+            );
+            newShape = {
+                type: 'circle',
+                centerX: startPosRef.current.x,
+                centerY: startPosRef.current.y,
+                radius,
+            };
+        }
+        
+        await addShape(newShape);
+        isDrawingRef.current = false;
+    };
+
+    // Combine both useEffect hooks into one to ensure consistent ordering
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        // Canvas initialization and resize logic
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
         clearCanvas(shapes, canvas, ctx);
 
         const handleResize = () => {
@@ -82,21 +200,7 @@ const CanvasPage = () => {
             clearCanvas(shapes, canvas, ctx);
         };
         
-        window.addEventListener('resize', handleResize);
-        
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, [shapes]);
-
-    // Effect to set up mouse event listeners
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
+        // Mouse event handlers
         const handleMouseDown = (e: MouseEvent) => {
             isDrawingRef.current = true;
             const rect = canvas.getBoundingClientRect();
@@ -119,52 +223,20 @@ const CanvasPage = () => {
             drawCurrentShape(ctx, startPosRef.current, currentPos, selectedShape);
         };
 
-        const handleMouseUp = (e: MouseEvent) => {
-            if (!isDrawingRef.current) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const currentPos = {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
-
-            if (selectedShape === 'rect') {
-                const x = Math.min(startPosRef.current.x, currentPos.x);
-                const y = Math.min(startPosRef.current.y, currentPos.y);
-                const width = Math.abs(currentPos.x - startPosRef.current.x);
-                const height = Math.abs(currentPos.y - startPosRef.current.y);
-                setShapes(prevShapes => [...prevShapes, {
-                    type: 'rect',
-                    x,
-                    y,
-                    width,
-                    height,
-                }]);
-            } else {
-                const radius = Math.sqrt(
-                    Math.pow(currentPos.x - startPosRef.current.x, 2) + 
-                    Math.pow(currentPos.y - startPosRef.current.y, 2)
-                );
-                setShapes(prevShapes => [...prevShapes, {
-                    type: 'circle',
-                    centerX: startPosRef.current.x,
-                    centerY: startPosRef.current.y,
-                    radius,
-                }]);
-            }
-            
-            isDrawingRef.current = false;
-        };
-
+        // Add all event listeners
+        window.addEventListener('resize', handleResize);
         canvas.addEventListener('mousedown', handleMouseDown);
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('mouseup', handleMouseUp);
 
+        // Cleanup function
         return () => {
+            window.removeEventListener('resize', handleResize);
             canvas.removeEventListener('mousedown', handleMouseDown);
             canvas.removeEventListener('mousemove', handleMouseMove);
             canvas.removeEventListener('mouseup', handleMouseUp);
         };
+        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [shapes, selectedShape]);
 
     return (

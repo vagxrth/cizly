@@ -4,22 +4,78 @@ import middleware from "./middleware.js";
 import { createRoomSchema, signInSchema, createUserSchema } from "@repo/schema/types";
 import dotenv from "dotenv";
 import { prismaClient } from '@repo/db/client';
+import cors from 'cors';
 
 const app = express();
 
 dotenv.config();
 
-app.post("/signup", async (req, res) => {
-  const data = createUserSchema.parse(req.body);
-  const user = await prismaClient.user.create({
-    data: {
-      username: data.username,
-      password: data.password,
-    },
+// Enable CORS for all routes
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow only the Next.js frontend
+  methods: ['GET', 'POST'], // Allow only needed methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow needed headers
+}));
+
+// Parse JSON bodies
+app.use(express.json());
+
+// Create or get the anonymous user
+const getOrCreateAnonymousUser = async () => {
+  let anonymousUser = await prismaClient.user.findUnique({
+    where: { username: 'anonymous' }
   });
-  res.json({
-    userId: user.id,
-  })
+
+  if (!anonymousUser) {
+    anonymousUser = await prismaClient.user.create({
+      data: {
+        username: 'anonymous',
+        password: 'anonymous',
+      }
+    });
+  }
+
+  return anonymousUser;
+};
+
+// Create or get a room
+const getOrCreateRoom = async (roomId: string) => {
+  let room = await prismaClient.room.findUnique({
+    where: { roomName: roomId }
+  });
+
+  if (!room) {
+    const anonymousUser = await getOrCreateAnonymousUser();
+    room = await prismaClient.room.create({
+      data: {
+        roomName: roomId,
+        adminId: anonymousUser.id,
+      }
+    });
+  }
+
+  return room;
+};
+
+app.post("/signup", async (req, res) => {
+  try {
+    const data = createUserSchema.parse(req.body);
+    const user = await prismaClient.user.create({
+      data: {
+        username: data.username,
+        password: data.password,
+      },
+    });
+    // Create token for the new user
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string);
+    res.json({
+      userId: user.id,
+      token
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ error: "Failed to create user" });
+  }
 });
 
 app.post("/signin", async (req, res) => {
@@ -42,7 +98,7 @@ app.post("/create-room", middleware, async (req, res) => {
   const room = await prismaClient.room.create({
     data: {
       roomName: data.roomName,
-      adminId: req.userId,
+      adminId: String(req.userId), // Convert to string
     },
   });
   if (!data) {
@@ -54,21 +110,54 @@ app.post("/create-room", middleware, async (req, res) => {
   })
 });
 
-app.get("/chats/:roomId", middleware, async (req, res) => {
-  const roomId = req.params.roomId;
-  const messages = await prismaClient.message.findMany({
-    where: {
-      roomId: roomId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 50,
-  });
-  res.json({
-    messages: messages,
-  })
-})
+// Canvas endpoints without authentication
+app.get("/canvas/:canvasId", async (req, res) => {
+  try {
+    const canvasId = req.params.canvasId;
+    const room = await getOrCreateRoom(canvasId);
+    
+    const messages = await prismaClient.message.findMany({
+      where: {
+        roomId: room.id,
+      },
+      orderBy: {
+        createdAt: "desc",  
+      },
+      take: 50,
+    });
+    res.json({
+      messages: messages,
+    });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
+});
+
+app.post("/canvas/:canvasId", async (req, res) => {
+  try {
+    const canvasId = req.params.canvasId;
+    const messageContent = req.body.message;
+    
+    // Get or create room and anonymous user
+    const room = await getOrCreateRoom(canvasId);
+    const anonymousUser = await getOrCreateAnonymousUser();
+
+    // Create the message
+    const message = await prismaClient.message.create({
+      data: {
+        content: messageContent,
+        roomId: room.id,
+        userId: anonymousUser.id,
+      }
+    });
+
+    res.json({ success: true, message });
+  } catch (error) {
+    console.error('Error saving message:', error);
+    res.status(500).json({ error: "Failed to save message" });
+  }
+});
 
 app.get("/rooms/:roomName", middleware, async (req, res) => {
   const roomName = req.params.roomName;
@@ -85,6 +174,7 @@ app.get("/rooms/:roomName", middleware, async (req, res) => {
     room
   })
 })
+
 app.listen(3001, () => {
   console.log("Server is running on port 3001");
 });
