@@ -12,7 +12,36 @@ const CanvasPage = () => {
             if (!ctx) {
                 return;
             }
-            ctx.strokeRect(0, 0, 500, 500);
+
+            let isDrawing = false;
+            let startX = 0;
+            let startY = 0;
+            
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                startX = e.clientX - rect.left;
+                startY = e.clientY - rect.top;
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDrawing) {
+                
+                const rect = canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                
+                const width = currentX - startX;
+                const height = currentY - startY;
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeRect(startX, startY, width, height);
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
         }
     }, [canvasRef]);
 
