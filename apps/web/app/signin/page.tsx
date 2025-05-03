@@ -1,5 +1,7 @@
+import Auth from "../components/Auth";
+
 const SignIn = () => {
-  return <div>SignIn</div>;
+  return <Auth isSignIn={true} />;
 };
 
 export default SignIn;
