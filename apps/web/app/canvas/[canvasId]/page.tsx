@@ -129,12 +129,14 @@ const CanvasPage = () => {
             };
 
             if (selectedShape === 'rect') {
-                const width = currentPos.x - startPosRef.current.x;
-                const height = currentPos.y - startPosRef.current.y;
+                const x = Math.min(startPosRef.current.x, currentPos.x);
+                const y = Math.min(startPosRef.current.y, currentPos.y);
+                const width = Math.abs(currentPos.x - startPosRef.current.x);
+                const height = Math.abs(currentPos.y - startPosRef.current.y);
                 setShapes(prevShapes => [...prevShapes, {
                     type: 'rect',
-                    x: startPosRef.current.x,
-                    y: startPosRef.current.y,
+                    x,
+                    y,
                     width,
                     height,
                 }]);
