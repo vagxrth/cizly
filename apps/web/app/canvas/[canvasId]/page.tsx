@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useEffect, useRef, useState, use } from "react";
 
-type ShapeType = 'rect' | 'circle';
+type ShapeType = 'rect' | 'circle' | 'line';
 
 type Shape = {
     type: 'rect';
@@ -15,6 +15,12 @@ type Shape = {
     centerX: number;
     centerY: number;
     radius: number;
+} | {
+    type: 'line';
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
 }
 
 const getExistingShapes = async (canvasId: string): Promise<Shape[]> => {
@@ -28,14 +34,10 @@ const getExistingShapes = async (canvasId: string): Promise<Shape[]> => {
     }
 }
 
-// Before (lines 31–34):
-// const CanvasPage = ({params}: {params: Promise<{canvasId: string}>}) => {
-//     const resolvedParams = use(params);
-//     const canvasId = resolvedParams.canvasId;
-
-const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
-    const { canvasId } = params;
-    // …
+const CanvasPage = ({params}: {params: Promise<{canvasId: string}>}) => {
+    const resolvedParams = use(params);
+    const canvasId = resolvedParams.canvasId;
+    
     // Group all hooks at the top level
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [shapes, setShapes] = useState<Shape[]>([]);
@@ -58,6 +60,11 @@ const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
                 ctx.beginPath();
                 ctx.arc(shape.centerX, shape.centerY, shape.radius, 0, 2 * Math.PI);
                 ctx.stroke();
+            } else if (shape.type === 'line') {
+                ctx.beginPath();
+                ctx.moveTo(shape.startX, shape.startY);
+                ctx.lineTo(shape.endX, shape.endY);
+                ctx.stroke();
             }
         });
     }
@@ -73,13 +80,18 @@ const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
             const height = currentPos.y - startPos.y;
             ctx.beginPath();
             ctx.strokeRect(startPos.x, startPos.y, width, height);
-        } else {
+        } else if (shapeType === 'circle') {
             const radius = Math.sqrt(
                 Math.pow(currentPos.x - startPos.x, 2) + 
                 Math.pow(currentPos.y - startPos.y, 2)
             );
             ctx.beginPath();
             ctx.arc(startPos.x, startPos.y, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+        } else if (shapeType === 'line') {
+            ctx.beginPath();
+            ctx.moveTo(startPos.x, startPos.y);
+            ctx.lineTo(currentPos.x, currentPos.y);
             ctx.stroke();
         }
     }
@@ -167,7 +179,7 @@ const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
                 width,
                 height,
             };
-        } else {
+        } else if (selectedShape === 'circle') {
             const radius = Math.sqrt(
                 Math.pow(currentPos.x - startPosRef.current.x, 2) + 
                 Math.pow(currentPos.y - startPosRef.current.y, 2)
@@ -178,13 +190,20 @@ const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
                 centerY: startPosRef.current.y,
                 radius,
             };
+        } else {
+            newShape = {
+                type: 'line',
+                startX: startPosRef.current.x,
+                startY: startPosRef.current.y,
+                endX: currentPos.x,
+                endY: currentPos.y,
+            };
         }
         
         try {
-          await addShape(newShape);
+            await addShape(newShape);
         } catch (error) {
-          // Consider showing a user-friendly error notification
-          console.error('Failed to add shape:', error);
+            console.error('Failed to add shape:', error);
         }
         isDrawingRef.current = false;
     };
@@ -301,6 +320,20 @@ const CanvasPage = ({ params }: { params: { canvasId: string } }) => {
                     }}
                 >
                     Circle
+                </button>
+                <button
+                    onClick={() => setSelectedShape('line')}
+                    style={{
+                        backgroundColor: selectedShape === 'line' ? '#4a90e2' : '#2c2c2c',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s'
+                    }}
+                >
+                    Line
                 </button>
             </div>
         </div>
