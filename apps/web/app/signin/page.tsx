@@ -1,7 +1,49 @@
+'use client'
 import styles from "./signin.module.css";
 import Link from "next/link";
+import { useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        router.push('/dashboard');
+      } else {
+        const data = await response.json();
+        setError(data.message || 'Invalid email or password');
+      }
+    } catch (err) {
+      setError('Failed to sign in');
+    }
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -9,7 +51,9 @@ export default function SignIn() {
           <h1 className={styles.title}>Welcome Back</h1>
           <p className={styles.subtitle}>Sign in to your Çizly account</p>
           
-          <form className={styles.form}>
+          {error && <div className={styles.error}>{error}</div>}
+          
+          <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
               <label htmlFor="email">Email</label>
               <input
@@ -17,6 +61,8 @@ export default function SignIn() {
                 id="email"
                 placeholder="Enter your email"
                 required
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
             
@@ -27,6 +73,8 @@ export default function SignIn() {
                 id="password"
                 placeholder="Enter your password"
                 required
+                value={formData.password}
+                onChange={handleChange}
               />
             </div>
             
