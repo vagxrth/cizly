@@ -71,35 +71,15 @@ export default function NewCanvas() {
           />
         </div>
 
-        <div className={styles.dimensionsGroup}>
-          <div className={styles.formGroup}>
-            <label htmlFor="width">Width (px)</label>
-            <input
-              type="number"
-              id="width"
-              name="width"
-              value={canvasData.width}
-              onChange={handleChange}
-              min="100"
-              max="3000"
-              required
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="height">Height (px)</label>
-            <input
-              type="number"
-              id="height"
-              name="height"
-              value={canvasData.height}
-              onChange={handleChange}
-              min="100"
-              max="3000"
-              required
-            />
-          </div>
-        </div>
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
++   const parsedValue = e.target.type === 'number' ? parseInt(value, 10) : value;
+    setCanvasData(prev => ({
+      ...prev,
+-     [name]: value
++     [name]: parsedValue
+    }));
+  };
 
         <div className={styles.actions}>
           <button type="button" onClick={() => router.back()} className={styles.cancelButton}>
