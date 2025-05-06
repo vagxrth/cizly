@@ -20,8 +20,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchCanvases();
-  }, []);
-
+  }, [router]);
   const fetchCanvases = async () => {
     try {
       const response = await fetch('/api/canvas');
