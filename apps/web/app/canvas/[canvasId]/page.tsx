@@ -25,7 +25,7 @@ type Shape = {
 
 const getExistingShapes = async (canvasId: string): Promise<Shape[]> => {
     try {
-        const response = await axios.get(`http://localhost:3001/canvas/${canvasId}`);
+        const response = await axios.get(`/api/canvas/${canvasId}`);
         const messages = response.data.messages;
         return messages.map((x: {content: string}) => JSON.parse(x.content));
     } catch (error) {
@@ -140,7 +140,7 @@ const CanvasPage = ({params}: {params: Promise<{canvasId: string}>}) => {
     const addShape = async (newShape: Shape) => {
         try {
             // Save to database via HTTP server
-            await axios.post(`http://localhost:3001/canvas/${canvasId}`, {
+            await axios.post(`/api/canvas/${canvasId}`, {
                 message: JSON.stringify(newShape)
             });
 

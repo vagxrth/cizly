@@ -7,7 +7,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware to get the current user from the JWT token
 async function getCurrentUser(request: Request) {
-  const token = cookies().get('auth-token')?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth-token')?.value;
 
   if (!token) {
     throw new Error('Not authenticated');
