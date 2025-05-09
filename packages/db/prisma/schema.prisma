@@ -14,26 +14,30 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  canvases  Canvas[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(cuid())
+  username      String         @unique
+  email         String         @unique
+  password      String
+  canvases      Canvas[]
+  rooms         Room[]        @relation("RoomAdmin")
+  messages      Message[]
+  canvasMessages CanvasMessage[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model Canvas {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String?
   width       Int
   height      Int
-  content     String   // JSON string of canvas content
+  content     String        // JSON string of canvas content
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user        User          @relation(fields: [userId], references: [id])
+  messages    CanvasMessage[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@index([userId])
 }
@@ -43,7 +47,7 @@ model Room {
   roomName  String    @unique
   createdAt DateTime  @default(now())
   adminId   String
-  admin     User      @relation(fields: [adminId], references: [id])
+  admin     User      @relation("RoomAdmin", fields: [adminId], references: [id])
   messages  Message[]
 }
 
@@ -55,4 +59,17 @@ model Message {
   room      Room     @relation(fields: [roomId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model CanvasMessage {
+  id        String   @id @default(cuid())
+  content   String   // JSON string of shape data
+  canvasId  String
+  canvas    Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([canvasId])
+  @@index([userId])
 }
