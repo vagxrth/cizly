@@ -38,6 +38,15 @@ export async function GET(
 ) {
   try {
     const user = await getCurrentUser();
+    const canvas = await prisma.canvas.findUnique({
+      where: { id: params.canvasId },
+    });
+    if (!canvas) {
+      return NextResponse.json(
+        { message: 'Canvas not found' },
+        { status: 404 }
+      );
+    }
     const messages = await prisma.canvasMessage.findMany({
       where: {
         canvasId: params.canvasId,
