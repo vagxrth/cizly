@@ -31,6 +31,7 @@ const getOrCreateAnonymousUser = async () => {
       data: {
         username: 'anonymous',
         password: 'anonymous',
+        email: 'anonymous@example.com',
       }
     });
   }
@@ -63,6 +64,7 @@ app.post("/signup", async (req, res) => {
     const user = await prismaClient.user.create({
       data: {
         username: data.username,
+        email: data.email,
         password: data.password,
       },
     });
@@ -82,7 +84,7 @@ app.post("/signin", async (req, res) => {
   const data = signInSchema.parse(req.body);
   const user = await prismaClient.user.findUnique({
     where: {
-      username: data.username,
+      email: data.email,
     },
   });
   if (!user) {
