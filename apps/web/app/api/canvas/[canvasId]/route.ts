@@ -62,6 +62,14 @@ export async function POST(
     const user = await getCurrentUser();
     const { message } = await request.json();
 
+    // Validate input
+    if (!message) {
+      return NextResponse.json(
+        { message: 'Missing required message content' },
+        { status: 400 }
+      );
+    }
+
     const canvasMessage = await prisma.canvasMessage.create({
       data: {
         content: message,
@@ -73,9 +81,22 @@ export async function POST(
     return NextResponse.json(canvasMessage, { status: 201 });
   } catch (error) {
     console.error('Create canvas message error:', error);
+
+    if (
+      error instanceof Error &&
+      (error.message === 'Not authenticated' ||
+        error.message === 'User not found' ||
+        error.message === 'Invalid token or authentication failed')
+    ) {
+      return NextResponse.json(
+        { message: 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
       { message: 'Something went wrong' },
       { status: 500 }
     );
   }
-} 
+}
