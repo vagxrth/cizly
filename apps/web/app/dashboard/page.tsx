@@ -20,6 +20,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchCanvases();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
   const fetchCanvases = async () => {
     try {
@@ -36,7 +37,7 @@ export default function Dashboard() {
       const data = await response.json();
       setCanvases(data);
     } catch (err) {
-      setError('Failed to load canvases');
+      setError(err instanceof Error ? err.message : 'Failed to load canvases');
     } finally {
       setLoading(false);
     }
@@ -64,7 +65,7 @@ export default function Dashboard() {
       <main className={styles.main}>
         {canvases.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>You haven't created any canvases yet.</p>
+            <p>You haven&apos;t created any canvases yet.</p>
             <Link href="/canvas/new" className={styles.createButton}>
               Create your first canvas
             </Link>

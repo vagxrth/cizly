@@ -51,7 +51,7 @@ export default function SignUp() {
         setError(data.message || 'Something went wrong');
       }
     } catch (err) {
-      setError('Failed to create account');
+      setError(err instanceof Error ? err.message : 'Failed to create account');
     }
   };
 

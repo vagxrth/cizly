@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Middleware to get the current user from the JWT token
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getCurrentUser(request: Request) {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
@@ -26,7 +26,7 @@ async function getCurrentUser(request: Request) {
 
     return user;
   } catch (error) {
-    throw new Error('Invalid token');
+    throw new Error('Invalid token', { cause: error });
   }
 }
 
