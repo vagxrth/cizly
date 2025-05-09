@@ -34,7 +34,7 @@ async function getCurrentUser() {
 
 export async function GET(
   request: Request,
-  { params }: { params: { canvasId: string } }
+  { params }: { params: Promise<{ canvasId: string }> }
 ) {
   const id = (await params).canvasId;
   try {
@@ -68,7 +68,7 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { canvasId: string } }
+  { params }: { params: Promise<{ canvasId: string }> }
 ) {
   try {
     const user = await getCurrentUser();
