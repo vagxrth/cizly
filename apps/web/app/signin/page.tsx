@@ -40,7 +40,7 @@ export default function SignIn() {
         setError(data.message || 'Invalid email or password');
       }
     } catch (err) {
-      setError('Failed to sign in');
+      setError(err instanceof Error ? err.message : 'Failed to sign in');
     }
   };
 
@@ -88,7 +88,7 @@ export default function SignIn() {
           </form>
           
           <p className={styles.signup}>
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/signup">Sign up</Link>
           </p>
         </div>

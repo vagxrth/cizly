@@ -5,7 +5,7 @@ import { verify } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-async function getCurrentUser(request?: Request) {
+async function getCurrentUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
 
@@ -34,12 +34,12 @@ async function getCurrentUser(request?: Request) {
 
 export async function GET(
   request: Request,
-  { params }: { params: { canvasId: string } }
+  { params }: { params: Promise<{ canvasId: string }> }
 ) {
+  const id = (await params).canvasId;
   try {
-    const user = await getCurrentUser();
     const canvas = await prisma.canvas.findUnique({
-      where: { id: params.canvasId },
+      where: { id: id },
     });
     if (!canvas) {
       return NextResponse.json(
@@ -49,7 +49,7 @@ export async function GET(
     }
     const messages = await prisma.canvasMessage.findMany({
       where: {
-        canvasId: params.canvasId,
+        canvasId: id,
       },
       orderBy: {
         createdAt: 'asc',
@@ -68,10 +68,11 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { canvasId: string } }
+  { params }: { params: Promise<{ canvasId: string }> }
 ) {
   try {
     const user = await getCurrentUser();
+    const id = (await params).canvasId;
     const { message } = await request.json();
 
     // Validate input
@@ -85,7 +86,7 @@ export async function POST(
     const canvasMessage = await prisma.canvasMessage.create({
       data: {
         content: message,
-        canvasId: params.canvasId,
+        canvasId: id,
         userId: user.id,
       },
     });
