@@ -14,9 +14,10 @@ export default function NewCanvas() {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    const parsedValue = e.target.type === 'number' ? parseInt(value, 10) : value;
     setCanvasData(prev => ({
       ...prev,
-      [name]: value
+      [name]: parsedValue
     }));
   };
 
@@ -70,16 +71,6 @@ export default function NewCanvas() {
             rows={3}
           />
         </div>
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-+   const parsedValue = e.target.type === 'number' ? parseInt(value, 10) : value;
-    setCanvasData(prev => ({
-      ...prev,
--     [name]: value
-+     [name]: parsedValue
-    }));
-  };
 
         <div className={styles.actions}>
           <button type="button" onClick={() => router.back()} className={styles.cancelButton}>
