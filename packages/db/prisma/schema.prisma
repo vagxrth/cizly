@@ -65,9 +65,9 @@ model CanvasMessage {
   id        String   @id @default(cuid())
   content   String   // JSON string of shape data
   canvasId  String
-  canvas    Canvas   @relation(fields: [canvasId], references: [id])
+  canvas    Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@index([canvasId])
