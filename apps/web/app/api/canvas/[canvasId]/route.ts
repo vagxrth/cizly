@@ -5,7 +5,7 @@ import { verify } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-async function getCurrentUser() {
+async function getCurrentUser(request?: Request) {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
 
@@ -25,7 +25,10 @@ async function getCurrentUser() {
 
     return user;
   } catch (error) {
-    throw new Error('Invalid token');
+    if (error instanceof Error) {
+      throw error; // Rethrow specific errors (e.g. "User not found")
+    }
+    throw new Error('Invalid token or authentication failed');
   }
 }
 
