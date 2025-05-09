@@ -1,4 +1,3 @@
-import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
 import Link from "next/link";
 
