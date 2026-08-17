@@ -13,7 +13,7 @@
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "@repo/db": "workspace:*",
     "cors": "^2.8.5"
   },
@@ -25,7 +25,7 @@
     "@repo/schema": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/express": "^5.0.1",
-    "@types/jsonwebtoken": "^9.0.9",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/cors": "^2.8.17",
     "tsx": "^4.7.1"
   }
