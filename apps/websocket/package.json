@@ -14,7 +14,7 @@
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
     "ws": "^8.21.3",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.6.1"
   },
   "keywords": [],
   "author": "",
