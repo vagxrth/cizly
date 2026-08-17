@@ -18,7 +18,7 @@ jobs:
       # Omit version: when package.json has packageManager — both set fails the action.
       - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
