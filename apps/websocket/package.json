@@ -12,7 +12,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "ws": "^8.21.3",
     "dotenv": "^16.4.5"
   },
@@ -23,7 +23,7 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@repo/db": "workspace:*",
-    "@types/jsonwebtoken": "^9.0.9",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/ws": "^8.18.1",
     "@types/dotenv": "^8.2.0"
   }
