@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # Omit version: when package.json has packageManager — both set fails the action.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v4
         with:
